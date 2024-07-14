@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
+    <title>Berry Shop</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #ff6f61, #99c24d);
+            color: #fff;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        header {
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2em;
+        }
+
+        .game-info {
+            margin-bottom: 20px;
+        }
+
+        .game-info p {
+            margin: 10px 0;
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .actions button {
+            background-color: #ff6f61;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .actions button:hover {
+            background-color: #e65a54;
+        }
+
+        .actions input {
+            padding: 10px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            width: 100%;
+            max-width: 300px;
+            box-sizing: border-box;
+        }
+
+        .notification-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 600px;
+            z-index: 1000;
+        }
+
+        .notification {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .notification.show {
+            opacity: 1;
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 1.5em;
+            }
+
+            .actions button, .actions input {
+                padding: 8px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Berry Shop</h1>
+        </header>
+        <main>
+            <div class="game-info">
+                <p>Berry Coins: <span id="berryCoins">100</span></p>
+                <p>Products Made: <span id="productsMade">0</span></p>
+                <p>Factory Level: <span id="factoryLevel">3D Printer R1</span></p>
+            </div>
+            <div class="actions">
+                <input type="text" id="productName" placeholder="Product Name">
+                <input type="number" id="productPrice" placeholder="Set Product Price">
+                <button id="makeProduct">Make Product</button>
+                <button id="sellProduct">Sell Product</button>
+                <button id="eraseData">Erase Data</button>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+            </div>
+        </main>
+    </div>
+    <div class="notification-container" id="notificationContainer"></div>
+    <script>
+        let berryCoins = localStorage.getItem("berryCoins") ? parseInt(localStorage.getItem("berryCoins")) : 100;
+        let productsMade = localStorage.getItem("productsMade") ? parseInt(localStorage.getItem("productsMade")) : 0;
+        let factoryLevel = localStorage.getItem("factoryLevel") ? localStorage.getItem("factoryLevel") : "3D Printer R1";
+
+        const levelRanks = [
+            "3D Printer R1", "3D Printer R2", "3D Printer R3", 
+            "Factory R1", "Factory R2", "Factory R3", 
+            "Advanced Factory R1", "Advanced Factory R2", "Advanced Factory R3",
+            "Automated Plant R1", "Automated Plant R2", "Automated Plant R3",
+            "Industrial Complex R1", "Industrial Complex R2", "Industrial Complex R3",
+            "Mega Factory R1", "Mega Factory R2", "Mega Factory R3",
+            "Super Plant R1", "Super Plant R2", "Super Plant R3"
+        ];
+
+        function showNotification(message) {
+            const notificationContainer = document.getElementById('notificationContainer');
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.innerText = message;
+            notificationContainer.appendChild(notification);
+            setTimeout(() => {
+                notification.classList.add('show');
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    setTimeout(() => {
+                        notificationContainer.removeChild(notification);
+                    }, 500);
+                }, 3000);
+            }, 10);
+        }
+
+        document.getElementById("makeProduct").addEventListener("click", function() {
+            let productName = document.getElementById("productName").value;
+            let productPrice = parseInt(document.getElementById("productPrice").value);
+
+            if (productName === "" || isNaN(productPrice) || productPrice <= 0 || productPrice > 500) {
+                showNotification("Please enter a valid product name and price (1-500).");
+                return;
+            }
+
+            if (berryCoins >= 1) {
+                berryCoins -= 1;
+                productsMade += 1;
+                updateGameInfo();
+            } else {
+                showNotification("Not enough Berry Coins to make a product!");
+            }
+        });
+
+        document.getElementById("sellProduct").addEventListener("click", function() {
+            let productName = document.getElementById("productName").value;
+            let productPrice = parseInt(document.getElementById("productPrice").value);
+
+            if (productName === "" || isNaN(productPrice) || productPrice <= 0 || productPrice > 500) {
+                showNotification("Please enter a valid product name and price (1-500).");
+                return;
+            }
+            
+            if (productsMade > 0) {
+                let maxCustomers = Math.max(1, Math.floor(10 - (productPrice / 50)));
+                let customers = Math.floor(Math.random() * maxCustomers) + 1;
+                let totalEarned = customers * productPrice;
+                berryCoins += totalEarned;
+                productsMade -= 1;
+                updateGameInfo();
+                showNotification(`You sold ${productName} to ${customers} customers and earned ${totalEarned} Berry Coins!`);
+            } else {
+                showNotification("No products to sell!");
+            }
+        });
+
+        document.getElementById("eraseData").addEventListener("click", function() {
+            localStorage.clear();
+            berryCoins = 100;
+            productsMade = 0;
+            factoryLevel = "3D Printer R1";
+            updateGameInfo();
+        });
+
+        function updateGameInfo() {
+            document.getElementById("berryCoins").innerText = berryCoins;
+            document.getElementById("productsMade").innerText = productsMade;
+
+            let nextLevelIndex = Math.floor(berryCoins / 5000);
+            factoryLevel = levelRanks[Math.min(nextLevelIndex, levelRanks.length - 1)];
+            
+            document.getElementById("factoryLevel").innerText = factoryLevel;
+
+            localStorage.setItem("berryCoins", berryCoins);
+            localStorage.setItem("productsMade", productsMade);
+            localStorage.setItem("factoryLevel", factoryLevel);
+        }
+
+        updateGameInfo();
+    </script>
+</body>
+</html>
